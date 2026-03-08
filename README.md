@@ -120,4 +120,3 @@ Or transfer the APK file over USB / WhatsApp / email and open it on your phone.
 ## License
 
 MIT License — free to use, modify, and distribute.
-"# Horizontal-lock-" 

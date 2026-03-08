@@ -10,17 +10,13 @@
         android:fillColor="#FFFFFF"
         android:pathData="M72,36h-4V28C68,17.52 59.48,9 49,9S30,17.52 30,28v8h-4c-4.4,0 -8,3.6 -8,8v40c0,4.4 3.6,8 8,8h48c4.4,0 8,-3.6 8,-8V44C80,39.6 76.4,36 72,36zM49,76c-4.4,0 -8,-3.6 -8,-8s3.6,-8 8,-8 8,3.6 8,8S53.4,76 49,76zM61.2,36H36.8V28c0,-6.8 5.6,-12.4 12.4,-12.4 6.8,0 12.4,5.6 12.4,12.4V36z"/>
 
-    <!-- Small horizontal lines suggesting horizon level -->
-    <rect
-        android:x="12"
-        android:y="96"
-        android:width="20"
-        android:height="2"
-        android:fillColor="#AAFFFFFF" />
-    <rect
-        android:x="76"
-        android:y="96"
-        android:width="20"
-        android:height="2"
-        android:fillColor="#AAFFFFFF" />
+    <!-- Horizon indicator lines (left side) — path replaces invalid rect -->
+    <path
+        android:fillColor="#AAFFFFFF"
+        android:pathData="M12,96 L32,96 L32,98 L12,98 Z"/>
+
+    <!-- Horizon indicator lines (right side) -->
+    <path
+        android:fillColor="#AAFFFFFF"
+        android:pathData="M76,96 L96,96 L96,98 L76,98 Z"/>
 </vector>
