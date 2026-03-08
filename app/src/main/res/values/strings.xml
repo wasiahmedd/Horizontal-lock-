@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Horizon Lock</string>
+    <string name="lock_on">Horizon Lock ON</string>
+    <string name="lock_off">Horizon Lock OFF</string>
+    <string name="record">Record</string>
+    <string name="stop">Stop</string>
+    <string name="toggle_lock">Toggle Horizon Lock</string>
+    <string name="permission_denied">Camera and microphone permissions are required.</string>
+</resources>

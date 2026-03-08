@@ -1,0 +1,10 @@
+<!-- Ripple over white circle ring – classic camera record button -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#60FFFFFF">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#00000000" />
+            <stroke android:width="3dp" android:color="#FFFFFF" />
+        </shape>
+    </item>
+</ripple>

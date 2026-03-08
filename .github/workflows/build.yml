@@ -1,0 +1,43 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up Java 17 (required for AGP 8.x)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      # 3. Set up Gradle 8.7 (no wrapper jar needed)
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
+      # 4. Build debug APK
+      - name: Build Debug APK
+        run: gradle :app:assembleDebug
+
+      # 5. Upload APK as downloadable artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HorizonLock-debug-APK
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 30

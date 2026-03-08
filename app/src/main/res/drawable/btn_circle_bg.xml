@@ -1,0 +1,9 @@
+<!-- Ripple over a semi-transparent frosted circle – for lock/toggle buttons -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#60FFFFFF">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#33FFFFFF" />
+        </shape>
+    </item>
+</ripple>
