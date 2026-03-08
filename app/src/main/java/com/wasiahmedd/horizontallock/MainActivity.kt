@@ -1,8 +1,10 @@
 package com.wasiahmedd.horizontallock
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -125,6 +127,34 @@ class MainActivity : AppCompatActivity() {
 
         binding.recordButton.setOnClickListener {
             cameraHelper.toggleRecording()
+        }
+
+        binding.galleryButton.setOnClickListener {
+            openGallery()
+        }
+    }
+
+    /** Opens the phone's gallery filtered to videos saved by this app. */
+    private fun openGallery() {
+        // Try to open the specific HorizontalLock folder via the Files/Gallery app
+        val folderIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video/*")
+            putExtra("android.content.extra.SHOW_ADVANCED", true)
+        }
+
+        // Fallback: generic video chooser
+        val fallback = Intent(Intent.ACTION_PICK).apply {
+            setDataAndType(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video/*")
+        }
+
+        try {
+            startActivity(folderIntent)
+        } catch (e: Exception) {
+            try {
+                startActivity(Intent.createChooser(fallback, "Open Gallery"))
+            } catch (ex: Exception) {
+                Toast.makeText(this, "No gallery app found", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
