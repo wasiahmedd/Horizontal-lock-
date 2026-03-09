@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.view.animation.LinearInterpolator
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -34,8 +35,13 @@ import kotlin.math.sin
  *  2. HD video recording to the public Movies/HorizontalLock gallery folder
  *  3. Real-time horizon roll correction applied to the PreviewView transform
  *
- * Roll correction works by counter-rotating the PreviewView and scaling it
- * so there are no black corners — exactly how hardware gimbal stabilization works.
+ * Roll correction counter-rotates the PreviewView and scales it up to avoid
+ * black corners — identical to hardware gimbal stabilisation.
+ *
+ * FIX: Use LinearInterpolator + short 16ms duration so the view tracks the sensor
+ * instantly (one frame = ~16ms at 60 fps). Default interpolator (AccelerateDecelerate)
+ * caused sluggish, laggy feel because it eases in/out over each 32ms window.
+ * We also cancel the previous animator before starting a new one so no frame is lost.
  */
 class CameraHelper(
     private val context: Context,
@@ -45,6 +51,8 @@ class CameraHelper(
     private var videoCapture: VideoCapture<Recorder>? = null
     private var activeRecording: Recording? = null
     private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
+    private val linearInterpolator = LinearInterpolator()
 
     /** Called with `true` when recording starts, `false` when it stops. */
     var onRecordingStateChanged: ((Boolean) -> Unit)? = null
@@ -127,33 +135,39 @@ class CameraHelper(
     /**
      * Apply horizon roll correction to the PreviewView.
      *
-     * When [isLockEnabled] is true, we counter-rotate the view by [-rollDegrees]
-     * and scale it up to fill the frame (avoid black corners).
+     * When [isLockEnabled] is true:
+     *   - Counter-rotate the preview by [-rollDegrees] to keep the horizon level.
+     *   - Scale up by |cos θ| + |sin θ| so there are no black corners.
+     *   - Use LinearInterpolator + 16ms duration for frame-perfect tracking.
      *
-     * Scale formula: to fill the bounding box after rotation by angle θ,
-     * we need scale ≥ |cos θ| + |sin θ|. This is the tightest correct fill.
-     *
-     * When [isLockEnabled] is false, we smoothly animate back to normal.
+     * When [isLockEnabled] is false:
+     *   - Smoothly animate back to identity (0°, scale 1×1) over 300ms.
      */
     fun applyRollCorrection(rollDegrees: Float, isLockEnabled: Boolean) {
         if (isLockEnabled) {
             val correctionAngle = -rollDegrees
             val radians = Math.toRadians(rollDegrees.toDouble())
+            // Minimum scale to fill the bounding box with zero black corners
             val scale = (abs(cos(radians)) + abs(sin(radians))).toFloat()
                 .coerceAtLeast(1f)
 
+            // Cancel current animator to prevent queuing lag
+            previewView.animate().cancel()
             previewView.animate()
                 .rotation(correctionAngle)
                 .scaleX(scale)
                 .scaleY(scale)
-                .setDuration(32L)   // ~2 frames at 60fps → seamless
+                .setDuration(16L)               // 1 frame at 60fps — instant tracking
+                .setInterpolator(linearInterpolator) // no ease-in/out lag
                 .start()
         } else {
+            previewView.animate().cancel()
             previewView.animate()
                 .rotation(0f)
                 .scaleX(1f)
                 .scaleY(1f)
                 .setDuration(300L)
+                .setInterpolator(linearInterpolator)
                 .start()
         }
     }
